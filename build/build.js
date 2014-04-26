@@ -303,8 +303,9 @@ var body = document.body;
 var el = create('div', 'overlay');
 el._class = classes(el);
 
-var close = create('button', 'overlay-close');
+var close = create('a', 'overlay-close');
 close.innerHTML = '×';
+close.setAttribute('href', '#');
 el.appendChild(close);
 
 var container = create('div', 'overlay-container');
