@@ -1,35 +1,13 @@
-@-webkit-keyframes overlay-scale {
-  0% {
-    -webkit-transform: scale(0.8);
-    transform: scale(0.8);
-  }
-
-  50% {
-    -webkit-transform: scale(1.1);
-    transform: scale(1.1);
-  }
-
-  100% {
-    -webkit-transform: scale(1);
-    transform: scale(1);
-  }
-}
 @keyframes overlay-scale {
   0% {
-    -webkit-transform: scale(0.8);
-    -ms-transform: scale(0.8);
     transform: scale(0.8);
   }
 
   50% {
-    -webkit-transform: scale(1.1);
-    -ms-transform: scale(1.1);
     transform: scale(1.1);
   }
 
   100% {
-    -webkit-transform: scale(1);
-    -ms-transform: scale(1);
     transform: scale(1);
   }
 }
@@ -67,6 +45,7 @@ body.overlay-active {
 }
 .overlay-close:hover {
   cursor: pointer;
+  color: #333;
 }
 .overlay-container {
   max-width: 680px;

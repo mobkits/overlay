@@ -1,14 +1,16 @@
 {
   "name": "overlay",
-  "repo": "yuehu/overlay",
-  "description": "A simple overlay for Yuehu.",
+  "repository": "chemzqm//Users/chemzqm/component-dev",
+  "description": "A simple overlay.",
   "version": "0.0.1",
   "keywords": [],
   "dependencies": {
     "component/event": "*",
     "component/classes": "*"
   },
-  "development": {},
+  "development": {
+    "dependencies": {}
+  },
   "license": "MIT",
   "main": "index.js",
   "scripts": [

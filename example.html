@@ -58,16 +58,15 @@
       <h1>Overlay</h1>
       <p>An overlay is over the current page.</p>
       <div style="margin-top:100px">
-        <a class="button" href="https://github.com/yuehu/overlay">View Documentation</a>
+        <a class="button" href="https://github.com/chemzqm/overlay">View Documentation</a>
       </div>
     </div>
   </div>
   <script>
     var Overlay = require('overlay');
-    var o = new Overlay();
-    o.fill(document.getElementById('overlay-html'));
+    var el = document.getElementById('overlay-html');
     document.getElementById('trigger').onclick = function() {
-      o.show();
+      var o = new Overlay(el);
     }
   </script>
 </body>

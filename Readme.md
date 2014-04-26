@@ -14,8 +14,12 @@ Install with [component(1)](http://component.io):
 
 ```js
 var Overlay = require('overlay');
-var o = new Overlay();
+var el = document.getElementById('overlay-html');
+var o = new Overlay(el);
 ```
+### new Overlay(el)
+
+Init Overlay with `el` as body.
 
 ### .show()
 
@@ -25,15 +29,6 @@ Show overlay.
 
 Hide overlay.
 
-### .fill(el)
-
-Fill element to the overlay container.
-
-```js
-var el = document.createElement('div');
-el.innerHTML = 'This is overlay content';
-overlay.fill(el);
-```
 
 ## License
 

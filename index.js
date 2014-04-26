@@ -1,59 +1,60 @@
 var events = require('event');
 var classes = require('classes');
-
-function Overlay() {
-  var el = create('div', 'overlay');
-  el._class = classes(el);
-
-  if (!document.body._class) {
-    document.body._class = classes(document.body);
-  }
-
-  var close = create('button', 'overlay-close');
-  close.innerHTML = '×';
-  el.appendChild(close);
-
-  var container = create('div', 'overlay-container');
-  el.appendChild(container);
-
-  this.el = el;
-  this.container = container;
-
-  var me = this;
-  events.bind(close, 'click', function() {
-    me.hide();
-  });
-  events.bind(el, 'click', function(e) {
-    if (e.target === el) {
-      me.hide();
-    }
-  });
-}
-Overlay.prototype.show = function() {
-  document.body._class.add('overlay-active');
-  if (!this._inserted) {
-    document.body.appendChild(this.el);
-    this._inserted = true;
-  }
-};
-Overlay.prototype.hide = function() {
-  document.body._class.remove('overlay-active');
-};
-Overlay.prototype.remove = function() {
-  if (this.el.parentNode) {
-    this.el.parentNode.removeChild(this.el);
-    this._inserted = false;
-  }
-};
-Overlay.prototype.fill = function(el) {
-  this.container.appendChild(el);
-};
-
-module.exports = Overlay;
-
+var hasTouch = 'ontouchend' in window;
 
 function create(tag, className) {
   var el = document.createElement(tag);
   el.className = className;
   return el;
 }
+var body = document.body;
+
+var el = create('div', 'overlay');
+el._class = classes(el);
+
+var close = create('button', 'overlay-close');
+close.innerHTML = '×';
+el.appendChild(close);
+
+var container = create('div', 'overlay-container');
+el.appendChild(container);
+
+events.bind(document, 'DOMContentLoaded', function () {
+  body.appendChild(el);
+  if (hasTouch) {
+    events.bind(close, 'touchEnd', hide);
+  } else {
+    events.bind(close, 'click', hide);
+  }
+})
+
+events.bind(document, 'keyup', function (e) {
+  if (e.which === 27) {
+    hide();
+  }
+})
+
+function hide() {
+  classes(body).remove('overlay-active');
+}
+
+function show() {
+  classes(body).add('overlay-active');
+}
+
+function clean(node) {
+  var el;
+  while(node.firstChild) {
+    node.removeChild(node.firstChild);
+  }
+}
+
+module.exports = function Overlay(el) {
+  if (!(this instanceof Overlay)) return new Overlay(el);
+  clean(container);
+  container.appendChild(el);
+  show();
+  this.show = show;
+  this.hide = hide;
+}
+

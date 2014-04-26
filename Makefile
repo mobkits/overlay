@@ -13,11 +13,11 @@ watch:
 
 publish:
 	@component build
-	@rm -fr gh-pages
-	@mkdir gh-pages
-	@mv build gh-pages/
-	@cp example.html gh-pages/index.html
-	@ghp-import gh-pages -n
-	@rm -fr gh-pages
+	@rm -fr .gh-pages
+	@mkdir .gh-pages
+	@mv build .gh-pages/
+	@cp example.html .gh-pages/index.html
+	@ghp-import .gh-pages -n
+	@rm -fr .gh-pages
 
 .PHONY: clean
