@@ -20,4 +20,4 @@ doc:
 	@ghp-import .gh-pages -n -p
 	@rm -fr .gh-pages
 
-.PHONY: clean
+.PHONY: clean doc

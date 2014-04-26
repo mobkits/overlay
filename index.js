@@ -22,7 +22,7 @@ el.appendChild(container);
 events.bind(document, 'DOMContentLoaded', function () {
   body.appendChild(el);
   if (hasTouch) {
-    events.bind(close, 'touchEnd', hide);
+    events.bind(close, 'touchend', hide);
   } else {
     events.bind(close, 'click', hide);
   }
