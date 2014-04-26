@@ -1,14 +1,14 @@
 # Overlay
 
-A simple overlay for Yuehu.
+A simple overlay forked from [Yuehu](http:s//yuehu.github.com).
 
-Showcase at <http://yuehu.github.io/overlay/>.
+Showcase at <http://chemzqm.github.io/overlay/>.
 
 ## Installation
 
 Install with [component(1)](http://component.io):
 
-    $ component install yuehu/overlay
+    $ component install chemzqm/overlay
 
 ## API
 
