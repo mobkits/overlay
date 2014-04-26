@@ -11,7 +11,7 @@ clean:
 watch:
 	@rewatch *.css *.js -c "make build"
 
-publish:
+doc:
 	@component build
 	@rm -fr .gh-pages
 	@mkdir .gh-pages
