@@ -321,11 +321,12 @@ events.bind(document, 'DOMContentLoaded', function () {
 
 events.bind(document, 'keyup', function (e) {
   if (e.which === 27) {
-    hide();
+    hide(e);
   }
 })
 
-function hide() {
+function hide(e) {
+  e.preventDefault();
   classes(body).remove('overlay-active');
 }
 
