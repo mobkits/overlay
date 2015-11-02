@@ -8,16 +8,7 @@ components: component.json
 clean:
 	rm -fr build components template.js
 
-watch:
-	@rewatch *.css *.js -c "make build"
-
 doc:
-	@component build
-	@rm -fr .gh-pages
-	@mkdir .gh-pages
-	@mv build .gh-pages/
-	@cp example.html .gh-pages/index.html
-	@ghp-import .gh-pages -n -p
-	@rm -fr .gh-pages
+	@webpack example/index.js example/bundle.js --module-bind "css=style!css"
 
 .PHONY: clean doc
