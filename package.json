@@ -1,6 +1,6 @@
 {
   "name": "mobile-overlay",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "no jquery overlay for mobile and desktop",
   "main": "index.js",
   "scripts": {
