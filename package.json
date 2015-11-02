@@ -27,6 +27,7 @@
     "component-classes": "^1.2.4",
     "component-event": "^0.1.4"
   },
+  "style": "./overlay.css",
   "devDependencies": {
     "css-loader": "^0.21.0",
     "style-loader": "^0.13.0"
