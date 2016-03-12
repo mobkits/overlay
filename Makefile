@@ -10,5 +10,6 @@ clean:
 
 doc:
 	@webpack example/index.js example/bundle.js --module-bind "css=style!css"
+	@ghp-import example -n -p
 
 .PHONY: clean doc
