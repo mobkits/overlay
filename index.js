@@ -55,7 +55,6 @@ module.exports = function Overlay(el) {
   if (!(this instanceof Overlay)) return new Overlay(el);
   clean(container);
   container.appendChild(el);
-  show();
   this.show = show;
   this.hide = hide;
 }
