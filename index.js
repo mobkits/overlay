@@ -36,7 +36,7 @@ events.bind(document, 'keyup', function (e) {
 })
 
 function hide(e) {
-  e.preventDefault();
+  if (e) e.preventDefault();
   classes(body).remove('overlay-active');
 }
 
