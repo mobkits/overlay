@@ -24,7 +24,7 @@
     "classes": "component-classes"
   },
   "dependencies": {
-    "component-classes": "^1.2.4",
+    "component-classes": "^1.2.5",
     "component-event": "^0.1.4"
   },
   "style": "./overlay.css",
