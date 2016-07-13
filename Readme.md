@@ -21,10 +21,6 @@ var o = new Overlay(el);
 
 Init Overlay with `el` as body.
 
-### .show()
-
-Show overlay.
-
 ### .hide()
 
 Hide overlay.

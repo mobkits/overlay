@@ -1,6 +1,6 @@
 {
   "name": "mobile-overlay",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "no jquery overlay for mobile and desktop",
   "main": "index.js",
   "scripts": {
@@ -20,12 +20,12 @@
   },
   "homepage": "https://github.com/chemzqm/overlay#readme",
   "browser": {
-    "event": "component-event",
-    "classes": "component-classes"
+    "classes": "component-classes",
+    "events": "component-events"
   },
   "dependencies": {
     "component-classes": "^1.2.4",
-    "component-event": "^0.1.4"
+    "component-events": "^1.0.10"
   },
   "style": "./overlay.css",
   "devDependencies": {
