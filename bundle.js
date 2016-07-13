@@ -406,119 +406,68 @@
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var events = __webpack_require__(6);
-	var classes = __webpack_require__(7);
-	var hasTouch = 'ontouchend' in window;
+	var classes = __webpack_require__(6)
+	var events = __webpack_require__(8)
+	var body = document.body
 
 	function create(tag, className) {
-	  var el = document.createElement(tag);
-	  el.className = className;
-	  return el;
+	  var el = document.createElement(tag)
+	  el.className = className
+	  return el
 	}
-	var body = document.body;
 
-	var el = create('div', 'overlay');
-	el._class = classes(el);
+	function Overlay(el) {
+	  if (!(this instanceof Overlay)) return new Overlay(el)
+	  var root = this.el = create('div', 'overlay')
+	  body.appendChild(root)
+	  var close = create('a', 'overlay-close')
+	  close.innerHTML = '×'
+	  close.setAttribute('href', '#')
+	  root.appendChild(close)
+	  var container = create('div', 'overlay-container')
+	  container.appendChild(el)
+	  root.appendChild(container)
+	  this.events = events(root, this)
+	  this.events.bind('click a.overlay-close', 'hide')
+	  this.docEvents = events(document, this)
+	  this.docEvents.bind('keyup')
+	  classes(body).add('overlay-active')
+	}
 
-	var close = create('a', 'overlay-close');
-	close.innerHTML = '×';
-	close.setAttribute('href', '#');
-	el.appendChild(close);
-
-	var container = create('div', 'overlay-container');
-	el.appendChild(container);
-
-	events.bind(document, 'DOMContentLoaded', function () {
-	  body.appendChild(el);
-	  if (hasTouch) {
-	    events.bind(close, 'touchend', hide);
-	  } else {
-	    events.bind(close, 'click', hide);
-	  }
-	})
-
-	events.bind(document, 'keyup', function (e) {
+	Overlay.prototype.onkeyup = function (e) {
 	  if (e.which === 27) {
-	    hide(e);
-	  }
-	})
-
-	function hide(e) {
-	  e.preventDefault();
-	  classes(body).remove('overlay-active');
-	}
-
-	function show() {
-	  classes(body).add('overlay-active');
-	}
-
-	function clean(node) {
-	  var el;
-	  while(node.firstChild) {
-	    node.removeChild(node.firstChild);
+	    e.preventDefault()
+	    this.hide()
 	  }
 	}
 
-	module.exports = function Overlay(el) {
-	  if (!(this instanceof Overlay)) return new Overlay(el);
-	  clean(container);
-	  container.appendChild(el);
-	  show();
-	  this.show = show;
-	  this.hide = hide;
+	Overlay.prototype.hide = function (e) {
+	  if (this._removed) return
+	  if (e) {
+	    e.preventDefault()
+	  }
+	  this._removed = true
+	  this.events.unbind()
+	  this.docEvents.unbind()
+	  classes(body).remove('overlay-active')
+	  var el = this.el
+	  setTimeout(function () {
+	    el.parentNode.removeChild(el)
+	  }, 200)
 	}
 
+	module.exports = Overlay
 
 
 /***/ },
 /* 6 */
-/***/ function(module, exports) {
-
-	var bind = window.addEventListener ? 'addEventListener' : 'attachEvent',
-	    unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent',
-	    prefix = bind !== 'addEventListener' ? 'on' : '';
-
-	/**
-	 * Bind `el` event `type` to `fn`.
-	 *
-	 * @param {Element} el
-	 * @param {String} type
-	 * @param {Function} fn
-	 * @param {Boolean} capture
-	 * @return {Function}
-	 * @api public
-	 */
-
-	exports.bind = function(el, type, fn, capture){
-	  el[bind](prefix + type, fn, capture || false);
-	  return fn;
-	};
-
-	/**
-	 * Unbind `el` event `type`'s callback `fn`.
-	 *
-	 * @param {Element} el
-	 * @param {String} type
-	 * @param {Function} fn
-	 * @param {Boolean} capture
-	 * @return {Function}
-	 * @api public
-	 */
-
-	exports.unbind = function(el, type, fn, capture){
-	  el[unbind](prefix + type, fn, capture || false);
-	  return fn;
-	};
-
-/***/ },
-/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * Module dependencies.
 	 */
 
-	var index = __webpack_require__(8);
+	var index = __webpack_require__(7);
 
 	/**
 	 * Whitespace regexp.
@@ -704,7 +653,7 @@
 
 
 /***/ },
-/* 8 */
+/* 7 */
 /***/ function(module, exports) {
 
 	module.exports = function(arr, obj){
@@ -714,6 +663,419 @@
 	  }
 	  return -1;
 	};
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	/**
+	 * Module dependencies.
+	 */
+
+	try {
+	  var events = __webpack_require__(9);
+	} catch(err) {
+	  var events = __webpack_require__(9);
+	}
+
+	try {
+	  var delegate = __webpack_require__(10);
+	} catch(err) {
+	  var delegate = __webpack_require__(10);
+	}
+
+	/**
+	 * Expose `Events`.
+	 */
+
+	module.exports = Events;
+
+	/**
+	 * Initialize an `Events` with the given
+	 * `el` object which events will be bound to,
+	 * and the `obj` which will receive method calls.
+	 *
+	 * @param {Object} el
+	 * @param {Object} obj
+	 * @api public
+	 */
+
+	function Events(el, obj) {
+	  if (!(this instanceof Events)) return new Events(el, obj);
+	  if (!el) throw new Error('element required');
+	  if (!obj) throw new Error('object required');
+	  this.el = el;
+	  this.obj = obj;
+	  this._events = {};
+	}
+
+	/**
+	 * Subscription helper.
+	 */
+
+	Events.prototype.sub = function(event, method, cb){
+	  this._events[event] = this._events[event] || {};
+	  this._events[event][method] = cb;
+	};
+
+	/**
+	 * Bind to `event` with optional `method` name.
+	 * When `method` is undefined it becomes `event`
+	 * with the "on" prefix.
+	 *
+	 * Examples:
+	 *
+	 *  Direct event handling:
+	 *
+	 *    events.bind('click') // implies "onclick"
+	 *    events.bind('click', 'remove')
+	 *    events.bind('click', 'sort', 'asc')
+	 *
+	 *  Delegated event handling:
+	 *
+	 *    events.bind('click li > a')
+	 *    events.bind('click li > a', 'remove')
+	 *    events.bind('click a.sort-ascending', 'sort', 'asc')
+	 *    events.bind('click a.sort-descending', 'sort', 'desc')
+	 *
+	 * @param {String} event
+	 * @param {String|function} [method]
+	 * @return {Function} callback
+	 * @api public
+	 */
+
+	Events.prototype.bind = function(event, method){
+	  var e = parse(event);
+	  var el = this.el;
+	  var obj = this.obj;
+	  var name = e.name;
+	  var method = method || 'on' + name;
+	  var args = [].slice.call(arguments, 2);
+
+	  // callback
+	  function cb(){
+	    var a = [].slice.call(arguments).concat(args);
+	    obj[method].apply(obj, a);
+	  }
+
+	  // bind
+	  if (e.selector) {
+	    cb = delegate.bind(el, e.selector, name, cb);
+	  } else {
+	    events.bind(el, name, cb);
+	  }
+
+	  // subscription for unbinding
+	  this.sub(name, method, cb);
+
+	  return cb;
+	};
+
+	/**
+	 * Unbind a single binding, all bindings for `event`,
+	 * or all bindings within the manager.
+	 *
+	 * Examples:
+	 *
+	 *  Unbind direct handlers:
+	 *
+	 *     events.unbind('click', 'remove')
+	 *     events.unbind('click')
+	 *     events.unbind()
+	 *
+	 * Unbind delegate handlers:
+	 *
+	 *     events.unbind('click', 'remove')
+	 *     events.unbind('click')
+	 *     events.unbind()
+	 *
+	 * @param {String|Function} [event]
+	 * @param {String|Function} [method]
+	 * @api public
+	 */
+
+	Events.prototype.unbind = function(event, method){
+	  if (0 == arguments.length) return this.unbindAll();
+	  if (1 == arguments.length) return this.unbindAllOf(event);
+
+	  // no bindings for this event
+	  var bindings = this._events[event];
+	  if (!bindings) return;
+
+	  // no bindings for this method
+	  var cb = bindings[method];
+	  if (!cb) return;
+
+	  events.unbind(this.el, event, cb);
+	};
+
+	/**
+	 * Unbind all events.
+	 *
+	 * @api private
+	 */
+
+	Events.prototype.unbindAll = function(){
+	  for (var event in this._events) {
+	    this.unbindAllOf(event);
+	  }
+	};
+
+	/**
+	 * Unbind all events for `event`.
+	 *
+	 * @param {String} event
+	 * @api private
+	 */
+
+	Events.prototype.unbindAllOf = function(event){
+	  var bindings = this._events[event];
+	  if (!bindings) return;
+
+	  for (var method in bindings) {
+	    this.unbind(event, method);
+	  }
+	};
+
+	/**
+	 * Parse `event`.
+	 *
+	 * @param {String} event
+	 * @return {Object}
+	 * @api private
+	 */
+
+	function parse(event) {
+	  var parts = event.split(/ +/);
+	  return {
+	    name: parts.shift(),
+	    selector: parts.join(' ')
+	  }
+	}
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+	var bind = window.addEventListener ? 'addEventListener' : 'attachEvent',
+	    unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent',
+	    prefix = bind !== 'addEventListener' ? 'on' : '';
+
+	/**
+	 * Bind `el` event `type` to `fn`.
+	 *
+	 * @param {Element} el
+	 * @param {String} type
+	 * @param {Function} fn
+	 * @param {Boolean} capture
+	 * @return {Function}
+	 * @api public
+	 */
+
+	exports.bind = function(el, type, fn, capture){
+	  el[bind](prefix + type, fn, capture || false);
+	  return fn;
+	};
+
+	/**
+	 * Unbind `el` event `type`'s callback `fn`.
+	 *
+	 * @param {Element} el
+	 * @param {String} type
+	 * @param {Function} fn
+	 * @param {Boolean} capture
+	 * @return {Function}
+	 * @api public
+	 */
+
+	exports.unbind = function(el, type, fn, capture){
+	  el[unbind](prefix + type, fn, capture || false);
+	  return fn;
+	};
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Module dependencies.
+	 */
+
+	try {
+	  var closest = __webpack_require__(11);
+	} catch(err) {
+	  var closest = __webpack_require__(11);
+	}
+
+	try {
+	  var event = __webpack_require__(9);
+	} catch(err) {
+	  var event = __webpack_require__(9);
+	}
+
+	/**
+	 * Delegate event `type` to `selector`
+	 * and invoke `fn(e)`. A callback function
+	 * is returned which may be passed to `.unbind()`.
+	 *
+	 * @param {Element} el
+	 * @param {String} selector
+	 * @param {String} type
+	 * @param {Function} fn
+	 * @param {Boolean} capture
+	 * @return {Function}
+	 * @api public
+	 */
+
+	exports.bind = function(el, selector, type, fn, capture){
+	  return event.bind(el, type, function(e){
+	    var target = e.target || e.srcElement;
+	    e.delegateTarget = closest(target, selector, true, el);
+	    if (e.delegateTarget) fn.call(el, e);
+	  }, capture);
+	};
+
+	/**
+	 * Unbind event `type`'s callback `fn`.
+	 *
+	 * @param {Element} el
+	 * @param {String} type
+	 * @param {Function} fn
+	 * @param {Boolean} capture
+	 * @api public
+	 */
+
+	exports.unbind = function(el, type, fn, capture){
+	  event.unbind(el, type, fn, capture);
+	};
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Module Dependencies
+	 */
+
+	try {
+	  var matches = __webpack_require__(12)
+	} catch (err) {
+	  var matches = __webpack_require__(12)
+	}
+
+	/**
+	 * Export `closest`
+	 */
+
+	module.exports = closest
+
+	/**
+	 * Closest
+	 *
+	 * @param {Element} el
+	 * @param {String} selector
+	 * @param {Element} scope (optional)
+	 */
+
+	function closest (el, selector, scope) {
+	  scope = scope || document.documentElement;
+
+	  // walk up the dom
+	  while (el && el !== scope) {
+	    if (matches(el, selector)) return el;
+	    el = el.parentNode;
+	  }
+
+	  // check scope for match
+	  return matches(el, selector) ? el : null;
+	}
+
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Module dependencies.
+	 */
+
+	try {
+	  var query = __webpack_require__(13);
+	} catch (err) {
+	  var query = __webpack_require__(13);
+	}
+
+	/**
+	 * Element prototype.
+	 */
+
+	var proto = Element.prototype;
+
+	/**
+	 * Vendor function.
+	 */
+
+	var vendor = proto.matches
+	  || proto.webkitMatchesSelector
+	  || proto.mozMatchesSelector
+	  || proto.msMatchesSelector
+	  || proto.oMatchesSelector;
+
+	/**
+	 * Expose `match()`.
+	 */
+
+	module.exports = match;
+
+	/**
+	 * Match `el` to `selector`.
+	 *
+	 * @param {Element} el
+	 * @param {String} selector
+	 * @return {Boolean}
+	 * @api public
+	 */
+
+	function match(el, selector) {
+	  if (!el || el.nodeType !== 1) return false;
+	  if (vendor) return vendor.call(el, selector);
+	  var nodes = query.all(selector, el.parentNode);
+	  for (var i = 0; i < nodes.length; ++i) {
+	    if (nodes[i] == el) return true;
+	  }
+	  return false;
+	}
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports) {
+
+	function one(selector, el) {
+	  return el.querySelector(selector);
+	}
+
+	exports = module.exports = function(selector, el){
+	  el = el || document;
+	  return one(selector, el);
+	};
+
+	exports.all = function(selector, el){
+	  el = el || document;
+	  return el.querySelectorAll(selector);
+	};
+
+	exports.engine = function(obj){
+	  if (!obj.one) throw new Error('.one callback required');
+	  if (!obj.all) throw new Error('.all callback required');
+	  one = obj.one;
+	  exports.all = obj.all;
+	  return exports;
+	};
+
 
 /***/ }
 /******/ ]);
